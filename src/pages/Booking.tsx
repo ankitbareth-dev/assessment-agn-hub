@@ -8,6 +8,7 @@ import {
   type DetailErrors,
   type UserDetails,
 } from "../utlis/services";
+import { appStorage, type BookingRecord } from "../utlis/storage";
 
 const STEPS = ["Date", "Time", "Your details", "Review"];
 
@@ -90,6 +91,7 @@ export default function Booking() {
   });
   const [errors, setErrors] = useState<DetailErrors>({});
   const [submitted, setSubmitted] = useState(false);
+  const [confirmed, setConfirmed] = useState<BookingRecord | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 30000);
@@ -125,6 +127,24 @@ export default function Booking() {
       ? TIME_SLOTS.filter((slot) => !isSlotPassed(selectedDate, slot, now))
           .length
       : 0;
+  const currentStep = confirmed ? STEPS.length + 1 : step;
+
+  const reviewRows =
+    selectedDate !== null && selectedIndex !== null && selectedSlot !== null
+      ? [
+          { label: "Service", value: service.name },
+          {
+            label: "Date",
+            value: formatDateLabel(selectedDate, selectedIndex),
+          },
+          { label: "Time", value: formatSlotLabel(selectedSlot) },
+          { label: "Duration", value: formatDuration(service.duration) },
+          { label: "Price", value: formatPrice(service.price) },
+          { label: "Full name", value: details.name },
+          { label: "Email", value: details.email },
+          { label: "Phone number", value: details.phone },
+        ]
+      : [];
 
   const updateDetail = (field: keyof UserDetails, value: string) => {
     const next = { ...details, [field]: value };
@@ -139,6 +159,32 @@ export default function Booking() {
     if (Object.keys(nextErrors).length === 0) {
       setStep(4);
     }
+  };
+
+  const handleConfirm = () => {
+    if (selectedDate === null || selectedSlot === null) return;
+    const record = appStorage.saveBooking({
+      serviceId: service.id,
+      serviceName: service.name,
+      servicePrice: service.price,
+      serviceDuration: service.duration,
+      date: selectedDate.toISOString(),
+      slot: selectedSlot,
+      name: details.name.trim(),
+      email: details.email.trim(),
+      phone: details.phone,
+    });
+    setConfirmed(record);
+  };
+
+  const handleBookAnother = () => {
+    setSelectedIndex(null);
+    setSelectedSlot(null);
+    setDetails({ name: "", email: "", phone: "" });
+    setErrors({});
+    setSubmitted(false);
+    setConfirmed(null);
+    setStep(1);
   };
 
   return (
@@ -186,8 +232,8 @@ export default function Booking() {
         <ol className="mt-(--space-6) flex items-center">
           {STEPS.map((label, index) => {
             const stepNumber = index + 1;
-            const isCompleted = stepNumber < step;
-            const isActive = stepNumber === step;
+            const isCompleted = stepNumber < currentStep;
+            const isActive = stepNumber === currentStep;
             const isLast = index === STEPS.length - 1;
             return (
               <li
@@ -245,215 +291,315 @@ export default function Booking() {
         </ol>
       </section>
 
-      {step === 1 && (
-        <section className="mt-(--space-4) rounded-lg border border-(--color-border) bg-(--color-surface) p-(--space-6)">
-          <div className="flex flex-wrap items-center justify-between gap-(--space-2)">
-            <h2 className="text-base font-semibold text-(--color-color-text)">
-              Choose a date
-            </h2>
-            <p className="text-xs text-(--color-color-text-muted)">
-              Mon–Fri only · up to 60 days ahead
-            </p>
-          </div>
+      {!confirmed && (
+        <>
+          {step === 1 && (
+            <section className="mt-(--space-4) rounded-lg border border-(--color-border) bg-(--color-surface) p-(--space-6)">
+              <div className="flex flex-wrap items-center justify-between gap-(--space-2)">
+                <h2 className="text-base font-semibold text-(--color-color-text)">
+                  Choose a date
+                </h2>
+                <p className="text-xs text-(--color-color-text-muted)">
+                  Mon–Fri only · up to 60 days ahead
+                </p>
+              </div>
 
-          <div className="mt-(--space-4) flex gap-(--space-2) overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden">
-            {dates.map((date, index) => (
-              <button
-                key={date.toDateString()}
-                type="button"
-                onClick={() => {
-                  if (selectedIndex !== index) setSelectedSlot(null);
-                  setSelectedIndex(index);
-                }}
-                aria-pressed={selectedIndex === index}
-                className={[
-                  "shrink-0 whitespace-nowrap rounded-full border px-(--space-4) py-(--space-2) text-sm font-medium [transition:var(--transition-fast)]",
-                  selectedIndex === index
-                    ? "border-transparent bg-(--color-primary) text-(--color-color-primary-text)!"
-                    : "border-(--color-border) bg-(--color-surface) text-(--color-color-text-secondary) hover:border-(--color-border-hover) hover:text-(--color-color-text)",
-                ].join(" ")}
-              >
-                {formatDateLabel(date, index)}
-              </button>
-            ))}
-          </div>
-
-          <div className="mt-(--space-6) flex justify-end">
-            <button
-              type="button"
-              disabled={selectedIndex === null}
-              onClick={() => setStep(2)}
-              className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Continue
-            </button>
-          </div>
-        </section>
-      )}
-
-      {step === 2 && selectedDate && selectedIndex !== null && (
-        <section className="mt-(--space-4) rounded-lg border border-(--color-border) bg-(--color-surface) p-(--space-6)">
-          <div className="flex flex-wrap items-center justify-between gap-(--space-2)">
-            <h2 className="text-base font-semibold text-(--color-color-text)">
-              Choose a time
-            </h2>
-            <p className="text-xs text-(--color-color-text-muted)">
-              {formatDateLabel(selectedDate, selectedIndex)} ·{" "}
-              {availableCount === 0
-                ? "No slots left for this date"
-                : `${availableCount} of ${TIME_SLOTS.length} available`}
-            </p>
-          </div>
-
-          <div className="mt-(--space-4) grid grid-cols-3 gap-(--space-2) sm:grid-cols-4 md:grid-cols-5">
-            {TIME_SLOTS.map((slot) => {
-              const isPassed = isSlotPassed(selectedDate, slot, now);
-              return (
-                <button
-                  key={slot}
-                  type="button"
-                  onClick={() => setSelectedSlot(slot)}
-                  disabled={isPassed}
-                  aria-pressed={selectedSlot === slot}
-                  className={[
-                    "rounded-lg border px-(--space-3) py-(--space-2) text-sm font-medium [transition:var(--transition-fast)]",
-                    isPassed
-                      ? "cursor-not-allowed border-(--color-border) bg-(--color-surface) text-(--color-color-text-muted) line-through opacity-60"
-                      : selectedSlot === slot
+              <div className="mt-(--space-4) flex gap-(--space-2) overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden">
+                {dates.map((date, index) => (
+                  <button
+                    key={date.toDateString()}
+                    type="button"
+                    onClick={() => {
+                      if (selectedIndex !== index) setSelectedSlot(null);
+                      setSelectedIndex(index);
+                    }}
+                    aria-pressed={selectedIndex === index}
+                    className={[
+                      "shrink-0 whitespace-nowrap rounded-full border px-(--space-4) py-(--space-2) text-sm font-medium [transition:var(--transition-fast)]",
+                      selectedIndex === index
                         ? "border-transparent bg-(--color-primary) text-(--color-color-primary-text)!"
-                        : "border-(--color-border) bg-(--color-surface) text-(--color-color-text-secondary) enabled:hover:border-(--color-border-hover) enabled:hover:text-(--color-color-text)",
-                  ].join(" ")}
-                >
-                  {formatSlotLabel(slot)}
-                </button>
-              );
-            })}
-          </div>
+                        : "border-(--color-border) bg-(--color-surface) text-(--color-color-text-secondary) hover:border-(--color-border-hover) hover:text-(--color-color-text)",
+                    ].join(" ")}
+                  >
+                    {formatDateLabel(date, index)}
+                  </button>
+                ))}
+              </div>
 
-          <div className="mt-(--space-6) flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => setStep(1)}
-              className="rounded-lg border border-(--color-border) px-(--space-5) py-(--space-3) text-sm font-medium text-(--color-color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
-            >
-              Back
-            </button>
-            <button
-              type="button"
-              disabled={!selectedSlotValid}
-              onClick={() => setStep(3)}
-              className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Continue
-            </button>
-          </div>
-        </section>
+              <div className="mt-(--space-6) flex justify-end">
+                <button
+                  type="button"
+                  disabled={selectedIndex === null}
+                  onClick={() => setStep(2)}
+                  className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Continue
+                </button>
+              </div>
+            </section>
+          )}
+
+          {step === 2 && selectedDate && selectedIndex !== null && (
+            <section className="mt-(--space-4) rounded-lg border border-(--color-border) bg-(--color-surface) p-(--space-6)">
+              <div className="flex flex-wrap items-center justify-between gap-(--space-2)">
+                <h2 className="text-base font-semibold text-(--color-color-text)">
+                  Choose a time
+                </h2>
+                <p className="text-xs text-(--color-color-text-muted)">
+                  {formatDateLabel(selectedDate, selectedIndex)} ·{" "}
+                  {availableCount === 0
+                    ? "No slots left for this date"
+                    : `${availableCount} of ${TIME_SLOTS.length} available`}
+                </p>
+              </div>
+
+              <div className="mt-(--space-4) grid grid-cols-3 gap-(--space-2) sm:grid-cols-4 md:grid-cols-5">
+                {TIME_SLOTS.map((slot) => {
+                  const isPassed = isSlotPassed(selectedDate, slot, now);
+                  return (
+                    <button
+                      key={slot}
+                      type="button"
+                      onClick={() => setSelectedSlot(slot)}
+                      disabled={isPassed}
+                      aria-pressed={selectedSlot === slot}
+                      className={[
+                        "rounded-lg border px-(--space-3) py-(--space-2) text-sm font-medium [transition:var(--transition-fast)]",
+                        isPassed
+                          ? "cursor-not-allowed border-(--color-border) bg-(--color-surface) text-(--color-color-text-muted) line-through opacity-60"
+                          : selectedSlot === slot
+                            ? "border-transparent bg-(--color-primary) text-(--color-color-primary-text)!"
+                            : "border-(--color-border) bg-(--color-surface) text-(--color-color-text-secondary) enabled:hover:border-(--color-border-hover) enabled:hover:text-(--color-color-text)",
+                      ].join(" ")}
+                    >
+                      {formatSlotLabel(slot)}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-(--space-6) flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="rounded-lg border border-(--color-border) px-(--space-5) py-(--space-3) text-sm font-medium text-(--color-color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  disabled={!selectedSlotValid}
+                  onClick={() => setStep(3)}
+                  className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Continue
+                </button>
+              </div>
+            </section>
+          )}
+
+          {step === 3 && (
+            <section className="mt-(--space-4) rounded-lg border border-(--color-border) bg-(--color-surface) p-(--space-6)">
+              <h2 className="text-base font-semibold text-(--color-color-text)">
+                Your details
+              </h2>
+              <p className="mt-(--space-1) text-sm text-(--color-color-text-secondary)">
+                We use these only to confirm and manage your appointment.
+              </p>
+
+              <div className="mt-(--space-6)">
+                <label
+                  htmlFor="full-name"
+                  className="text-sm font-medium text-(--color-color-text)"
+                >
+                  Full name
+                </label>
+                <input
+                  id="full-name"
+                  type="text"
+                  value={details.name}
+                  onChange={(event) => updateDetail("name", event.target.value)}
+                  placeholder="Your full name"
+                  autoComplete="name"
+                  aria-invalid={!!errors.name}
+                  className={inputClassName(!!errors.name)}
+                />
+                {errors.name && (
+                  <p className="mt-(--space-1) text-xs text-red-600">
+                    {errors.name}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-(--space-4) grid gap-(--space-4) sm:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="text-sm font-medium text-(--color-color-text)"
+                  >
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={details.email}
+                    onChange={(event) =>
+                      updateDetail("email", event.target.value)
+                    }
+                    placeholder="you@example.com"
+                    autoComplete="email"
+                    aria-invalid={!!errors.email}
+                    className={inputClassName(!!errors.email)}
+                  />
+                  {errors.email && (
+                    <p className="mt-(--space-1) text-xs text-red-600">
+                      {errors.email}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="text-sm font-medium text-(--color-color-text)"
+                  >
+                    Phone number
+                  </label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    inputMode="numeric"
+                    value={details.phone}
+                    onChange={(event) =>
+                      updateDetail(
+                        "phone",
+                        event.target.value.replace(/\D/g, "").slice(0, 10),
+                      )
+                    }
+                    placeholder="10-digit mobile number"
+                    autoComplete="tel"
+                    aria-invalid={!!errors.phone}
+                    className={inputClassName(!!errors.phone)}
+                  />
+                  {errors.phone && (
+                    <p className="mt-(--space-1) text-xs text-red-600">
+                      {errors.phone}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-(--space-6) flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="rounded-lg border border-(--color-border) px-(--space-5) py-(--space-3) text-sm font-medium text-(--color-color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={handleReview}
+                  className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85"
+                >
+                  Review booking
+                </button>
+              </div>
+            </section>
+          )}
+
+          {step === 4 && selectedDate && (
+            <section className="mt-(--space-4) rounded-lg border border-(--color-border) bg-(--color-surface) p-(--space-6)">
+              <h2 className="text-base font-semibold text-(--color-color-text)">
+                Review booking
+              </h2>
+              <p className="mt-(--space-1) text-sm text-(--color-color-text-secondary)">
+                Check everything looks right, then confirm your appointment.
+              </p>
+
+              <div className="mt-(--space-6) overflow-hidden rounded-lg border border-(--color-border)">
+                {reviewRows.map((row, index) => (
+                  <div
+                    key={row.label}
+                    className={[
+                      "flex items-center justify-between gap-(--space-4) px-(--space-4) py-(--space-3) text-sm",
+                      index % 2 === 0
+                        ? "bg-(--color-surface)"
+                        : "bg-(--color-surface-hover)",
+                    ].join(" ")}
+                  >
+                    <span className="text-(--color-color-text-secondary)">
+                      {row.label}
+                    </span>
+                    <span className="text-right font-medium text-(--color-color-text)">
+                      {row.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-(--space-6) flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setStep(3)}
+                  className="rounded-lg border border-(--color-border) px-(--space-5) py-(--space-3) text-sm font-medium text-(--color-color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirm}
+                  className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85"
+                >
+                  Confirm booking
+                </button>
+              </div>
+            </section>
+          )}
+        </>
       )}
 
-      {step === 3 && (
-        <section className="mt-(--space-4) rounded-lg border border-(--color-border) bg-(--color-surface) p-(--space-6)">
-          <h2 className="text-base font-semibold text-(--color-color-text)">
-            Your details
+      {confirmed && selectedDate && selectedIndex !== null && (
+        <section className="mt-(--space-4) rounded-lg border border-(--color-border) bg-(--color-surface) p-(--space-8) text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-(--color-primary)">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-(--color-color-primary-text)"
+              aria-hidden="true"
+            >
+              <path d="m5 13 4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="mt-(--space-4) text-lg font-bold text-(--color-color-text)">
+            Booking confirmed!
           </h2>
-          <p className="mt-(--space-1) text-sm text-(--color-color-text-secondary)">
-            We use these only to confirm and manage your appointment.
+          <p className="mt-(--space-2) text-sm text-(--color-color-text-secondary)">
+            Your {confirmed.serviceName} appointment on{" "}
+            {formatDateLabel(selectedDate, selectedIndex)} at{" "}
+            {formatSlotLabel(confirmed.slot)} has been saved.
           </p>
 
-          <div className="mt-(--space-6)">
-            <label
-              htmlFor="full-name"
-              className="text-sm font-medium text-(--color-color-text)"
-            >
-              Full name
-            </label>
-            <input
-              id="full-name"
-              type="text"
-              value={details.name}
-              onChange={(event) => updateDetail("name", event.target.value)}
-              placeholder="Your full name"
-              autoComplete="name"
-              aria-invalid={!!errors.name}
-              className={inputClassName(!!errors.name)}
-            />
-            {errors.name && (
-              <p className="mt-(--space-1) text-xs text-red-600">
-                {errors.name}
-              </p>
-            )}
-          </div>
-
-          <div className="mt-(--space-4) grid gap-(--space-4) sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor="email"
-                className="text-sm font-medium text-(--color-color-text)"
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={details.email}
-                onChange={(event) => updateDetail("email", event.target.value)}
-                placeholder="you@example.com"
-                autoComplete="email"
-                aria-invalid={!!errors.email}
-                className={inputClassName(!!errors.email)}
-              />
-              {errors.email && (
-                <p className="mt-(--space-1) text-xs text-red-600">
-                  {errors.email}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label
-                htmlFor="phone"
-                className="text-sm font-medium text-(--color-color-text)"
-              >
-                Phone number
-              </label>
-              <input
-                id="phone"
-                type="tel"
-                inputMode="numeric"
-                value={details.phone}
-                onChange={(event) =>
-                  updateDetail(
-                    "phone",
-                    event.target.value.replace(/\D/g, "").slice(0, 10),
-                  )
-                }
-                placeholder="10-digit mobile number"
-                autoComplete="tel"
-                aria-invalid={!!errors.phone}
-                className={inputClassName(!!errors.phone)}
-              />
-              {errors.phone && (
-                <p className="mt-(--space-1) text-xs text-red-600">
-                  {errors.phone}
-                </p>
-              )}
-            </div>
-          </div>
-
-          <div className="mt-(--space-6) flex items-center justify-between">
+          <div className="mt-(--space-6) flex flex-wrap items-center justify-center gap-(--space-3)">
             <button
               type="button"
-              onClick={() => setStep(2)}
-              className="rounded-lg border border-(--color-border) px-(--space-5) py-(--space-3) text-sm font-medium text-(--color-color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
-            >
-              Back
-            </button>
-            <button
-              type="button"
-              onClick={handleReview}
+              onClick={handleBookAnother}
               className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85"
             >
-              Review booking
+              Book another appointment
             </button>
+            <Link
+              to="/book"
+              className="rounded-lg border border-(--color-border) px-(--space-6) py-(--space-3) text-sm font-medium text-(--color-color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
+            >
+              Back to services
+            </Link>
           </div>
         </section>
       )}
