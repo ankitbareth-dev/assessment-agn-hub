@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { SERVICES, SERVICE_CATEGORIES } from "../data/services";
 import type { ServiceCategory } from "../types/services";
+import { Link } from "react-router";
 
 type CategoryFilter = "All" | ServiceCategory;
 
@@ -36,13 +37,13 @@ export default function Book() {
       <h1 className="text-[clamp(1.75rem,2.5vw,2.25rem)] font-extrabold">
         Book a consultation
       </h1>
-      <p className="mt-(--space-2) text-(--color-text-secondary)">
+      <p className="mt-(--space-2) text-(--color-color-text-secondary)">
         Choose a service, then pick a date and time that suit you.
       </p>
 
       <div className="relative mt-(--space-6)">
         <svg
-          className="pointer-events-none absolute left-(--space-4) top-1/2 -translate-y-1/2 text-(--color-text-muted)"
+          className="pointer-events-none absolute left-(--space-4) top-1/2 -translate-y-1/2 text-(--color-color-text-muted)"
           width="16"
           height="16"
           viewBox="0 0 24 24"
@@ -91,8 +92,10 @@ export default function Book() {
       {filtered.length > 0 ? (
         <div className="mt-(--space-4) grid gap-(--space-4) sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((service) => (
-            <article
+            <Link
               key={service.id}
+              to={`/book/${service.id}`}
+              aria-label={`Book ${service.name}`}
               className="flex flex-col rounded-lg border border-(--color-border) bg-(--color-surface) p-(--space-6) [transition:var(--transition-fast)] hover:border-(--color-border-hover)"
             >
               <span className="w-fit rounded-full bg-(--color-surface-hover) px-(--space-3) py-(--space-1) text-xs font-medium text-(--color-color-text-secondary)">
@@ -113,7 +116,7 @@ export default function Book() {
                   {formatPrice(service.price)}
                 </span>
               </div>
-            </article>
+            </Link>
           ))}
         </div>
       ) : (
