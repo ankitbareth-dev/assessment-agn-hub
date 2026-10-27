@@ -97,7 +97,9 @@ http://localhost:5173
 
 ## Live Demo
 
-Live demo link will be added here.
+**[View the live application](https://assessment-agn-hub.vercel.app/)**
+
+Try the deployed Client Appointment & Booking Dashboard to explore services, book appointments, and manage bookings.
 
 ## Notes
 
