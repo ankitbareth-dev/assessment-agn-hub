@@ -36,10 +36,8 @@ Make sure you have the following installed:
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/ankitbareth-dev/assessment-agn-hub
 ```
-
-Replace `<your-repository-url>` with your repository URL.
 
 ### 2. Navigate to the project directory
 
