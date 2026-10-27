@@ -33,19 +33,19 @@ Make sure you have the following installed:
 
 ## Run Locally
 
+## Run Locally
+
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/ankitbareth-dev/assessment-agn-hub
+git clone https://github.com/ankitbareth-dev/assessment-agn-hub.git
 ```
 
 ### 2. Navigate to the project directory
 
 ```bash
-cd <project-directory>
+cd assessment-agn-hub
 ```
-
-Replace `<project-directory>` with the directory created for your project.
 
 ### 3. Install dependencies
 
@@ -61,7 +61,7 @@ npm run dev
 
 ### 5. Open the application
 
-Open the local URL displayed in your terminal, usually:
+Open the local URL displayed in your terminal, usually http://localhost:5173.
 
 ```text
 http://localhost:5173
@@ -79,7 +79,21 @@ http://localhost:5173
 
 ## Screenshots
 
-Screenshots of the main application screens and responsive layouts will be added here.
+### Service Listing
+
+![Service Listing](screenshots/services.png)
+
+### Appointment Booking
+
+![Appointment Booking](screenshots/booking.png)
+
+### Booking Dashboard
+
+![Booking Dashboard](screenshots/dashboard.png)
+
+### Mobile Responsive Layout
+
+![Mobile Responsive Layout](screenshots/mobile.png)
 
 ## Live Demo
 
