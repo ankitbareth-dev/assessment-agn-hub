@@ -8,7 +8,11 @@ import {
   type DetailErrors,
   type UserDetails,
 } from "../utlis/services";
-import { appStorage, type BookingRecord } from "../utlis/storage";
+import {
+  appStorage,
+  BookingConflictError,
+  type BookingRecord,
+} from "../utlis/storage";
 
 const STEPS = ["Date", "Time", "Your details", "Review"];
 
@@ -62,6 +66,11 @@ const formatSlotLabel = (slot: string) => {
   return `${displayHours}:${String(minutes).padStart(2, "0")} ${period}`;
 };
 
+function slotToMinutes(slot: string) {
+  const [hours, minutes] = slot.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
 function isSlotPassed(date: Date, slot: string, now: number) {
   const [hours, minutes] = slot.split(":").map(Number);
   const slotTime = new Date(date);
@@ -92,6 +101,7 @@ export default function Booking() {
   const [errors, setErrors] = useState<DetailErrors>({});
   const [submitted, setSubmitted] = useState(false);
   const [confirmed, setConfirmed] = useState<BookingRecord | null>(null);
+  const [bookingError, setBookingError] = useState("");
 
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 30000);
@@ -122,10 +132,34 @@ export default function Booking() {
     selectedDate !== null &&
     selectedSlot !== null &&
     !isSlotPassed(selectedDate, selectedSlot, now);
+
+  const bookings = appStorage.getBookings();
+
+  const isSlotBooked = (slot: string) => {
+    const start = slotToMinutes(slot);
+    const end = start + service.duration;
+
+    return bookings.some((booking) => {
+      if (
+        booking.status === "cancelled" ||
+        booking.date.slice(0, 10) !== selectedDate?.toLocaleDateString("en-CA")
+      ) {
+        return false;
+      }
+
+      const existingStart = slotToMinutes(booking.slot);
+      const existingEnd = existingStart + booking.serviceDuration;
+
+      return start < existingEnd && existingStart < end;
+    });
+  };
+
   const availableCount =
     selectedDate !== null
-      ? TIME_SLOTS.filter((slot) => !isSlotPassed(selectedDate, slot, now))
-          .length
+      ? TIME_SLOTS.filter(
+          (slot) =>
+            !isSlotPassed(selectedDate, slot, now) && !isSlotBooked(slot),
+        ).length
       : 0;
   const currentStep = confirmed ? STEPS.length + 1 : step;
 
@@ -163,18 +197,33 @@ export default function Booking() {
 
   const handleConfirm = () => {
     if (selectedDate === null || selectedSlot === null) return;
-    const record = appStorage.saveBooking({
-      serviceId: service.id,
-      serviceName: service.name,
-      servicePrice: service.price,
-      serviceDuration: service.duration,
-      date: selectedDate.toISOString(),
-      slot: selectedSlot,
-      name: details.name.trim(),
-      email: details.email.trim(),
-      phone: details.phone,
-    });
-    setConfirmed(record);
+
+    setBookingError("");
+
+    try {
+      const record = appStorage.saveBooking({
+        serviceId: service.id,
+        serviceName: service.name,
+        servicePrice: service.price,
+        serviceDuration: service.duration,
+        date: selectedDate.toISOString(),
+        slot: selectedSlot,
+        name: details.name.trim(),
+        email: details.email.trim(),
+        phone: details.phone,
+      });
+
+      setConfirmed(record);
+    } catch (error) {
+      if (error instanceof BookingConflictError) {
+        setBookingError(error.message);
+        setStep(2);
+        setSelectedSlot(null);
+        return;
+      }
+
+      setBookingError("Unable to save your booking. Please try again.");
+    }
   };
 
   const handleBookAnother = () => {
@@ -185,6 +234,7 @@ export default function Booking() {
     setSubmitted(false);
     setConfirmed(null);
     setStep(1);
+    setBookingError("");
   };
 
   return (
@@ -355,17 +405,26 @@ export default function Booking() {
               <div className="mt-(--space-4) grid grid-cols-3 gap-(--space-2) sm:grid-cols-4 md:grid-cols-5">
                 {TIME_SLOTS.map((slot) => {
                   const isPassed = isSlotPassed(selectedDate, slot, now);
+                  const isBooked = isSlotBooked(slot);
+                  const isUnavailable = isPassed || isBooked;
+
                   return (
                     <button
                       key={slot}
                       type="button"
-                      onClick={() => setSelectedSlot(slot)}
-                      disabled={isPassed}
+                      onClick={() => {
+                        setSelectedSlot(slot);
+                        setBookingError("");
+                      }}
+                      disabled={isUnavailable}
                       aria-pressed={selectedSlot === slot}
+                      title={
+                        isBooked ? "This slot is already booked" : undefined
+                      }
                       className={[
                         "flex min-h-11 w-full items-center justify-center rounded-lg border px-2 py-3 text-sm font-medium whitespace-nowrap [transition:var(--transition-fast)]",
-                        isPassed
-                          ? "cursor-not-allowed border-(--color-border) bg-(--color-surface) text-(--color-text-muted) line-through opacity-60"
+                        isUnavailable
+                          ? "cursor-not-allowed border-(--color-border) bg-(--color-surface) text-(--color-text-muted) opacity-50"
                           : selectedSlot === slot
                             ? "border-transparent bg-(--color-primary) text-(--color-primary-text)"
                             : "border-(--color-border) bg-(--color-surface) text-(--color-text-secondary) enabled:hover:border-(--color-border-hover) enabled:hover:text-(--color-text)",
@@ -489,6 +548,14 @@ export default function Booking() {
               </div>
 
               <div className="mt-(--space-6) flex items-center justify-between">
+                {bookingError && (
+                  <p
+                    role="alert"
+                    className="mt-(--space-4) text-sm text-red-500"
+                  >
+                    {bookingError}
+                  </p>
+                )}
                 <button
                   type="button"
                   onClick={() => setStep(2)}
@@ -496,6 +563,7 @@ export default function Booking() {
                 >
                   Back
                 </button>
+
                 <button
                   type="button"
                   onClick={handleReview}

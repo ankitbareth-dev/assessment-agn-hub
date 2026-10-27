@@ -20,11 +20,20 @@ export type BookingRecord = BookingInput & {
 
 const BOOKINGS_KEY = "appointment_bookings";
 
+export class BookingConflictError extends Error {
+  constructor() {
+    super("This time slot is already booked. Please choose another slot.");
+    this.name = "BookingConflictError";
+  }
+}
+
 function readBookings(): BookingRecord[] {
   try {
     const raw = localStorage.getItem(BOOKINGS_KEY);
     if (!raw) return [];
+
     const parsed = JSON.parse(raw) as BookingRecord[];
+
     return parsed.map((record) => ({
       ...record,
       status: record.status ?? "upcoming",
@@ -34,8 +43,38 @@ function readBookings(): BookingRecord[] {
   }
 }
 
+function getSlotStart(slot: string): number {
+  const [hours, minutes] = slot.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+function findConflictingAppointment(
+  input: BookingInput,
+  bookings: BookingRecord[],
+): BookingRecord | undefined {
+  const newStart = getSlotStart(input.slot);
+  const newEnd = newStart + input.serviceDuration;
+
+  return bookings.find((booking) => {
+    if (booking.status === "cancelled" || booking.date !== input.date) {
+      return false;
+    }
+
+    const existingStart = getSlotStart(booking.slot);
+    const existingEnd = existingStart + booking.serviceDuration;
+
+    return newStart < existingEnd && existingStart < newEnd;
+  });
+}
+
 export const appStorage = {
   saveBooking(input: BookingInput): BookingRecord {
+    const bookings = readBookings();
+
+    if (findConflictingAppointment(input, bookings)) {
+      throw new BookingConflictError();
+    }
+
     const record: BookingRecord = {
       ...input,
       id: crypto.randomUUID(),
@@ -43,7 +82,6 @@ export const appStorage = {
       status: "upcoming",
     };
 
-    const bookings = readBookings();
     bookings.push(record);
     localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings));
 
@@ -58,6 +96,7 @@ export const appStorage = {
     const bookings = readBookings().map((record) =>
       record.id === id ? { ...record, status } : record,
     );
+
     localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings));
 
     return bookings;
