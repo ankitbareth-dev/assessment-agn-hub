@@ -1,75 +1,92 @@
-# React + TypeScript + Vite
+# Client Appointment & Booking Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A responsive appointment booking application built with React and TypeScript. Users can explore services, book appointments, and manage their bookings through a clean, modern interface.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Service Listing:** Browse services with descriptions, durations, and prices.
+- **Search & Filters:** Search services and filter them by category.
+- **Appointment Booking:** Select a date and available time slot, enter customer details, and review the booking before confirmation.
+- **Duplicate Booking Prevention:** Prevent overlapping appointments from being booked for the same date and time.
+- **Booking Dashboard:** View upcoming, completed, and cancelled appointments.
+- **Cancellation:** Cancel upcoming appointments.
+- **Form Validation:** Validate customer details and display relevant error messages.
+- **Persistent Storage:** Save bookings in browser local storage so they remain available after refreshing the page.
+- **Responsive UI:** Support desktop, tablet, and mobile screen sizes.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React
+- TypeScript
+- React Router
+- Tailwind CSS
+- Vite
+- Browser Local Storage
 
-## Expanding the ESLint configuration
+## Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Make sure you have the following installed:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- [Node.js](https://nodejs.org/) (LTS version recommended)
+- npm (included with Node.js)
+- Git (optional, if cloning the repository)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Run Locally
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 1. Clone the repository
 
+```bash
+git clone <your-repository-url>
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Replace `<your-repository-url>` with your repository URL.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 2. Navigate to the project directory
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+cd <project-directory>
 ```
+
+Replace `<project-directory>` with the directory created for your project.
+
+### 3. Install dependencies
+
+```bash
+npm install
+```
+
+### 4. Start the development server
+
+```bash
+npm run dev
+```
+
+### 5. Open the application
+
+Open the local URL displayed in your terminal, usually:
+
+```text
+http://localhost:5173
+```
+
+## Implementation Overview
+
+1. Built the application with React and TypeScript for reusable components and type-safe data handling.
+2. Used React Router to navigate between service listings, booking flows, and the appointment dashboard.
+3. Organized service information and booking utilities into separate modules to keep the code maintainable.
+4. Implemented a multi-step booking flow with date and time selection, customer details, review, and confirmation.
+5. Prevented duplicate and overlapping bookings by checking existing appointments before saving a new booking.
+6. Used browser local storage to persist bookings and support appointment cancellation without requiring a backend.
+7. Applied Tailwind CSS and a consistent monochrome design system to create a polished, responsive interface.
+
+## Screenshots
+
+Screenshots of the main application screens and responsive layouts will be added here.
+
+## Live Demo
+
+Live demo link will be added here.
+
+## Notes
+
+This assessment project uses local sample data and browser local storage. Bookings are stored in the current browser and are not shared across different browsers or devices. No backend or database is required.
