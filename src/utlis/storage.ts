@@ -1,3 +1,5 @@
+export type BookingStatus = "upcoming" | "completed" | "cancelled";
+
 export type BookingInput = {
   serviceId: number;
   serviceName: string;
@@ -13,6 +15,7 @@ export type BookingInput = {
 export type BookingRecord = BookingInput & {
   id: string;
   createdAt: string;
+  status: BookingStatus;
 };
 
 const BOOKINGS_KEY = "appointment_bookings";
@@ -21,7 +24,11 @@ function readBookings(): BookingRecord[] {
   try {
     const raw = localStorage.getItem(BOOKINGS_KEY);
     if (!raw) return [];
-    return JSON.parse(raw) as BookingRecord[];
+    const parsed = JSON.parse(raw) as BookingRecord[];
+    return parsed.map((record) => ({
+      ...record,
+      status: record.status ?? "upcoming",
+    }));
   } catch {
     return [];
   }
@@ -33,6 +40,7 @@ export const appStorage = {
       ...input,
       id: crypto.randomUUID(),
       createdAt: new Date().toISOString(),
+      status: "upcoming",
     };
 
     const bookings = readBookings();
@@ -40,5 +48,18 @@ export const appStorage = {
     localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings));
 
     return record;
+  },
+
+  getBookings(): BookingRecord[] {
+    return readBookings();
+  },
+
+  updateBookingStatus(id: string, status: BookingStatus): BookingRecord[] {
+    const bookings = readBookings().map((record) =>
+      record.id === id ? { ...record, status } : record,
+    );
+    localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings));
+
+    return bookings;
   },
 };
