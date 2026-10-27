@@ -33,7 +33,7 @@ export default function Book() {
   }, [query, category]);
 
   return (
-    <main className="mx-auto w-full max-w-(--container-width) px-(--space-6) py-(--space-8)">
+    <main className="mx-auto w-full min-w-0 max-w-(--container-width) px-(--space-6) py-(--space-8)">
       <h1 className="text-[clamp(1.75rem,2.5vw,2.25rem)] font-extrabold">
         Book a consultation
       </h1>
@@ -43,7 +43,7 @@ export default function Book() {
 
       <div className="relative mt-(--space-6)">
         <svg
-          className="pointer-events-none absolute left-(--space-4) top-1/2 -translate-y-1/2 text-(--color-color-text-muted)"
+          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-(--color-text-muted)"
           width="16"
           height="16"
           viewBox="0 0 24 24"
@@ -62,11 +62,11 @@ export default function Book() {
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search services…"
           aria-label="Search services"
-          className="w-full rounded-lg border border-(--color-border) bg-(--color-surface) py-(--space-3) pl-(--space-10) pr-(--space-4) text-sm text-(--color-color-text) outline-none [transition:var(--transition-fast)] placeholder:text-(--color-color-text-muted) focus:border-(--color-border-hover)"
+          className="w-full rounded-lg border border-(--color-border) bg-(--color-surface) py-3 pl-11 pr-4 text-sm text-(--color-text) outline-none [transition:var(--transition-fast)] placeholder:text-(--color-text-muted) focus:border-(--color-border-hover) "
         />
       </div>
 
-      <div className="mt-(--space-4) flex items-center gap-(--space-2) overflow-x-auto scrollbar-none [&::-webkit-scrollbar]:hidden">
+      <div className="mt-(--space-4) flex w-full min-w-0 items-center gap-(--space-2) overflow-x-auto pb-2">
         {FILTERS.map((filter) => (
           <button
             key={filter}
@@ -76,8 +76,8 @@ export default function Book() {
             className={[
               "flex shrink-0 items-center whitespace-nowrap rounded-full px-(--space-4) py-(--space-2) text-sm font-medium [transition:var(--transition-fast)]",
               category === filter
-                ? "bg-(--color-primary) text-(--color-color-primary-text)!"
-                : "border border-(--color-border) bg-(--color-surface) text-(--color-color-text-secondary) hover:border-(--color-border-hover) hover:text-(--color-color-text)",
+                ? "bg-(--color-primary) text-(--color-primary-text)"
+                : "border border-(--color-border) bg-(--color-surface) text-(--color-text-secondary) hover:border-(--color-border-hover) hover:text-(--color-text)",
             ].join(" ")}
           >
             {filter}

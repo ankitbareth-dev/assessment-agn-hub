@@ -2,7 +2,7 @@ import { Link } from "react-router";
 
 export default function Home() {
   return (
-    <main className="mx-auto flex min-h-[calc(100svh-var(--header-height))] max-w-(--container-width) flex-col items-center justify-center gap-(--space-6) px-(--space-6) text-center">
+    <main className="mx-auto flex min-w-0 w-full max-w-(--container-width) min-h-[calc(100svh-var(--header-height))] flex-col items-center justify-center gap-(--space-6) px-(--space-6) text-center">
       <h1 className="text-[clamp(3rem,5vw,4.5rem)] font-extrabold">AGNHUB</h1>
       <p className="text-[clamp(1rem,1.2vw,1.125rem)] text-(--color-text-secondary)">
         Home Page — choose where to go.
