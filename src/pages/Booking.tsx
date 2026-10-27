@@ -71,7 +71,7 @@ function isSlotPassed(date: Date, slot: string, now: number) {
 
 const inputClassName = (hasError: boolean) =>
   [
-    "mt-(--space-2) w-full rounded-lg border bg-(--color-surface) px-(--space-4) py-(--space-3) text-sm text-(--color-color-text) outline-none [transition:var(--transition-fast)] placeholder:text-(--color-color-text-muted) focus:border-(--color-border-hover)",
+    "mt-(--space-2) w-full rounded-lg border bg-(--color-surface) px-(--space-4) py-(--space-3) text-sm text-(--color-text) outline-none [transition:var(--transition-fast)] placeholder:text-(--color-text-muted) focus:border-(--color-border-hover)",
     hasError ? "border-red-600" : "border-(--color-border)",
   ].join(" ");
 
@@ -104,12 +104,12 @@ export default function Booking() {
         <h1 className="text-[clamp(1.75rem,2.5vw,2.25rem)] font-extrabold">
           Service not found
         </h1>
-        <p className="mt-(--space-2) text-(--color-color-text-secondary)">
+        <p className="mt-(--space-2) text-(--color-text-secondary)">
           The service you're looking for doesn't exist.
         </p>
         <Link
           to="/book"
-          className="mt-(--space-6) inline-flex rounded-lg border border-(--color-border) px-(--space-5) py-(--space-2) text-sm font-medium text-(--color-color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover)"
+          className="mt-(--space-6) inline-flex rounded-lg border border-(--color-border) px-(--space-5) py-(--space-2) text-sm font-medium text-(--color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover)"
         >
           Back to services
         </Link>
@@ -192,7 +192,7 @@ export default function Booking() {
       <section className="rounded-lg border border-(--color-border) bg-(--color-surface) p-(--space-6)">
         <div className="flex items-start justify-between gap-(--space-4)">
           <div className="flex items-center gap-(--space-4)">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-(--color-surface-hover)">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-(--color-surface-hover)">
               <svg
                 width="20"
                 height="20"
@@ -201,7 +201,7 @@ export default function Booking() {
                 stroke="currentColor"
                 strokeWidth="2"
                 strokeLinecap="round"
-                className="text-(--color-color-text)"
+                className="text-(--color-text)"
                 aria-hidden="true"
               >
                 <rect x="3" y="5" width="18" height="16" rx="2" />
@@ -209,10 +209,10 @@ export default function Booking() {
               </svg>
             </div>
             <div>
-              <h1 className="text-lg font-bold text-(--color-color-text) sm:text-xl">
+              <h1 className="text-lg font-bold text-(--color-text) sm:text-xl">
                 {service.name}
               </h1>
-              <p className="mt-(--space-1) text-sm text-(--color-color-text-secondary)">
+              <p className="mt-(--space-1) text-sm text-(--color-text-secondary)">
                 {formatDuration(service.duration)} ·{" "}
                 {formatPrice(service.price)}
               </p>
@@ -221,7 +221,7 @@ export default function Booking() {
 
           <Link
             to="/book"
-            className="shrink-0 rounded-lg border border-(--color-border) px-(--space-5) py-(--space-2) text-sm font-medium text-(--color-color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
+            className="shrink-0 rounded-lg border border-(--color-border) px-4 py-2 text-sm font-medium text-(--color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
           >
             Change
           </Link>
@@ -247,8 +247,8 @@ export default function Booking() {
                     className={[
                       "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
                       isActive || isCompleted
-                        ? "bg-(--color-primary) text-(--color-color-primary-text)!"
-                        : "border border-(--color-border) text-(--color-color-text-secondary)",
+                        ? "bg-(--color-primary) text-(--color-primary-text)!"
+                        : "border border-(--color-border) text-(--color-text-secondary)",
                     ].join(" ")}
                   >
                     {isCompleted ? (
@@ -273,10 +273,10 @@ export default function Booking() {
                     className={[
                       "hidden text-sm sm:inline",
                       isCompleted
-                        ? "text-(--color-color-text)"
+                        ? "text-(--color-text)"
                         : isActive
-                          ? "font-semibold text-(--color-color-text)"
-                          : "text-(--color-color-text-secondary)",
+                          ? "font-semibold text-(--color-text)"
+                          : "text-(--color-text-secondary)",
                     ].join(" ")}
                   >
                     {label}
@@ -290,16 +290,15 @@ export default function Booking() {
           })}
         </ol>
       </section>
-
       {!confirmed && (
         <>
           {step === 1 && (
             <section className="mt-(--space-4) rounded-lg border border-(--color-border) bg-(--color-surface) p-(--space-6)">
               <div className="flex flex-wrap items-center justify-between gap-(--space-2)">
-                <h2 className="text-base font-semibold text-(--color-color-text)">
+                <h2 className="text-base font-semibold text-(--color-text)">
                   Choose a date
                 </h2>
-                <p className="text-xs text-(--color-color-text-muted)">
+                <p className="text-xs text-(--color-text-muted)">
                   Mon–Fri only · up to 60 days ahead
                 </p>
               </div>
@@ -317,8 +316,8 @@ export default function Booking() {
                     className={[
                       "shrink-0 whitespace-nowrap rounded-full border px-(--space-4) py-(--space-2) text-sm font-medium [transition:var(--transition-fast)]",
                       selectedIndex === index
-                        ? "border-transparent bg-(--color-primary) text-(--color-color-primary-text)!"
-                        : "border-(--color-border) bg-(--color-surface) text-(--color-color-text-secondary) hover:border-(--color-border-hover) hover:text-(--color-color-text)",
+                        ? "border-transparent bg-(--color-primary) text-(--color-primary-text)!"
+                        : "border-(--color-border) bg-(--color-surface) text-(--color-text-secondary) hover:border-(--color-border-hover) hover:text-(--color-text)",
                     ].join(" ")}
                   >
                     {formatDateLabel(date, index)}
@@ -331,7 +330,7 @@ export default function Booking() {
                   type="button"
                   disabled={selectedIndex === null}
                   onClick={() => setStep(2)}
-                  className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Continue
                 </button>
@@ -342,10 +341,10 @@ export default function Booking() {
           {step === 2 && selectedDate && selectedIndex !== null && (
             <section className="mt-(--space-4) rounded-lg border border-(--color-border) bg-(--color-surface) p-(--space-6)">
               <div className="flex flex-wrap items-center justify-between gap-(--space-2)">
-                <h2 className="text-base font-semibold text-(--color-color-text)">
+                <h2 className="text-base font-semibold text-(--color-text)">
                   Choose a time
                 </h2>
-                <p className="text-xs text-(--color-color-text-muted)">
+                <p className="text-xs text-(--color-text-muted)">
                   {formatDateLabel(selectedDate, selectedIndex)} ·{" "}
                   {availableCount === 0
                     ? "No slots left for this date"
@@ -364,12 +363,12 @@ export default function Booking() {
                       disabled={isPassed}
                       aria-pressed={selectedSlot === slot}
                       className={[
-                        "rounded-lg border px-(--space-3) py-(--space-2) text-sm font-medium [transition:var(--transition-fast)]",
+                        "flex min-h-11 w-full items-center justify-center rounded-lg border px-2 py-3 text-sm font-medium whitespace-nowrap [transition:var(--transition-fast)]",
                         isPassed
-                          ? "cursor-not-allowed border-(--color-border) bg-(--color-surface) text-(--color-color-text-muted) line-through opacity-60"
+                          ? "cursor-not-allowed border-(--color-border) bg-(--color-surface) text-(--color-text-muted) line-through opacity-60"
                           : selectedSlot === slot
-                            ? "border-transparent bg-(--color-primary) text-(--color-color-primary-text)!"
-                            : "border-(--color-border) bg-(--color-surface) text-(--color-color-text-secondary) enabled:hover:border-(--color-border-hover) enabled:hover:text-(--color-color-text)",
+                            ? "border-transparent bg-(--color-primary) text-(--color-primary-text)"
+                            : "border-(--color-border) bg-(--color-surface) text-(--color-text-secondary) enabled:hover:border-(--color-border-hover) enabled:hover:text-(--color-text)",
                       ].join(" ")}
                     >
                       {formatSlotLabel(slot)}
@@ -382,7 +381,7 @@ export default function Booking() {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="rounded-lg border border-(--color-border) px-(--space-5) py-(--space-3) text-sm font-medium text-(--color-color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
+                  className="shrink-0 rounded-lg border border-(--color-border) px-6 py-3 text-sm font-medium text-(--color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
                 >
                   Back
                 </button>
@@ -390,7 +389,7 @@ export default function Booking() {
                   type="button"
                   disabled={!selectedSlotValid}
                   onClick={() => setStep(3)}
-                  className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   Continue
                 </button>
@@ -400,17 +399,17 @@ export default function Booking() {
 
           {step === 3 && (
             <section className="mt-(--space-4) rounded-lg border border-(--color-border) bg-(--color-surface) p-(--space-6)">
-              <h2 className="text-base font-semibold text-(--color-color-text)">
+              <h2 className="text-base font-semibold text-(--color-text)">
                 Your details
               </h2>
-              <p className="mt-(--space-1) text-sm text-(--color-color-text-secondary)">
+              <p className="mt-(--space-1) text-sm text-(--color-text-secondary)">
                 We use these only to confirm and manage your appointment.
               </p>
 
               <div className="mt-(--space-6)">
                 <label
                   htmlFor="full-name"
-                  className="text-sm font-medium text-(--color-color-text)"
+                  className="text-sm font-medium text-(--color-text)"
                 >
                   Full name
                 </label>
@@ -435,7 +434,7 @@ export default function Booking() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="text-sm font-medium text-(--color-color-text)"
+                    className="text-sm font-medium text-(--color-text)"
                   >
                     Email
                   </label>
@@ -461,7 +460,7 @@ export default function Booking() {
                 <div>
                   <label
                     htmlFor="phone"
-                    className="text-sm font-medium text-(--color-color-text)"
+                    className="text-sm font-medium text-(--color-text)"
                   >
                     Phone number
                   </label>
@@ -493,14 +492,14 @@ export default function Booking() {
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="rounded-lg border border-(--color-border) px-(--space-5) py-(--space-3) text-sm font-medium text-(--color-color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
+                  className="shrink-0 rounded-lg border border-(--color-border) px-6 py-3 text-sm font-medium text-(--color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
                 >
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={handleReview}
-                  className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85"
+                  className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85"
                 >
                   Review booking
                 </button>
@@ -510,10 +509,10 @@ export default function Booking() {
 
           {step === 4 && selectedDate && (
             <section className="mt-(--space-4) rounded-lg border border-(--color-border) bg-(--color-surface) p-(--space-6)">
-              <h2 className="text-base font-semibold text-(--color-color-text)">
+              <h2 className="text-base font-semibold text-(--color-text)">
                 Review booking
               </h2>
-              <p className="mt-(--space-1) text-sm text-(--color-color-text-secondary)">
+              <p className="mt-(--space-1) text-sm text-(--color-text-secondary)">
                 Check everything looks right, then confirm your appointment.
               </p>
 
@@ -528,10 +527,10 @@ export default function Booking() {
                         : "bg-(--color-surface-hover)",
                     ].join(" ")}
                   >
-                    <span className="text-(--color-color-text-secondary)">
+                    <span className="text-(--color-text-secondary)">
                       {row.label}
                     </span>
-                    <span className="text-right font-medium text-(--color-color-text)">
+                    <span className="text-right font-medium text-(--color-text)">
                       {row.value}
                     </span>
                   </div>
@@ -542,14 +541,14 @@ export default function Booking() {
                 <button
                   type="button"
                   onClick={() => setStep(3)}
-                  className="rounded-lg border border-(--color-border) px-(--space-5) py-(--space-3) text-sm font-medium text-(--color-color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
+                  className="shrink-0 rounded-lg border border-(--color-border) px-6 py-3 text-sm font-medium text-(--color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
                 >
                   Back
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirm}
-                  className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85"
+                  className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85"
                 >
                   Confirm booking
                 </button>
@@ -560,46 +559,98 @@ export default function Booking() {
       )}
 
       {confirmed && selectedDate && selectedIndex !== null && (
-        <section className="mt-(--space-4) rounded-lg border border-(--color-border) bg-(--color-surface) p-(--space-8) text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-(--color-primary)">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-(--color-color-primary-text)"
-              aria-hidden="true"
-            >
-              <path d="m5 13 4 4L19 7" />
-            </svg>
-          </div>
-          <h2 className="mt-(--space-4) text-lg font-bold text-(--color-color-text)">
-            Booking confirmed!
-          </h2>
-          <p className="mt-(--space-2) text-sm text-(--color-color-text-secondary)">
-            Your {confirmed.serviceName} appointment on{" "}
-            {formatDateLabel(selectedDate, selectedIndex)} at{" "}
-            {formatSlotLabel(confirmed.slot)} has been saved.
-          </p>
+        <section className="mt-(--space-4) overflow-hidden rounded-xl border border-(--color-border) bg-(--color-surface)">
+          <div className="flex flex-col items-center px-(--space-6) py-10 text-center sm:py-12">
+            <div className="flex size-16 items-center justify-center rounded-full border border-(--color-border) bg-(--color-surface-hover)">
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-(--color-text)"
+                aria-hidden="true"
+              >
+                <path d="m5 12 4 4L19 6" />
+              </svg>
+            </div>
 
-          <div className="mt-(--space-6) flex flex-wrap items-center justify-center gap-(--space-3)">
-            <button
-              type="button"
-              onClick={handleBookAnother}
-              className="rounded-lg bg-(--color-primary) px-(--space-6) py-(--space-3) text-sm font-semibold text-(--color-color-primary-text)! [transition:var(--transition-fast)] hover:opacity-85"
-            >
-              Book another appointment
-            </button>
-            <Link
-              to="/book"
-              className="rounded-lg border border-(--color-border) px-(--space-6) py-(--space-3) text-sm font-medium text-(--color-color-text) [transition:var(--transition-fast)] hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
-            >
-              Back to services
-            </Link>
+            <p className="mt-(--space-6) text-xs font-semibold uppercase tracking-[0.2em] text-(--color-text-muted)">
+              Booking complete
+            </p>
+
+            <h2 className="mt-(--space-2) text-2xl font-extrabold text-(--color-text) sm:text-3xl">
+              You're all set.
+            </h2>
+
+            <p className="mt-(--space-2) max-w-md text-sm leading-6 text-(--color-text-secondary)">
+              Your appointment has been saved successfully. Here are your
+              booking details for reference.
+            </p>
+
+            <div className="mt-(--space-8) w-full max-w-lg overflow-hidden rounded-lg border border-(--color-border) text-left">
+              <div className="border-b border-(--color-border) p-(--space-4)">
+                <p className="text-xs text-(--color-text-muted)">Service</p>
+                <p className="mt-1 font-semibold text-(--color-text)">
+                  {confirmed.serviceName}
+                </p>
+                <p className="mt-1 text-sm text-(--color-text-secondary)">
+                  {formatDuration(confirmed.serviceDuration)} ·{" "}
+                  {formatPrice(confirmed.servicePrice)}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-(--space-4) p-(--space-4)">
+                <div>
+                  <p className="text-xs text-(--color-text-muted)">Date</p>
+                  <p className="mt-1 text-sm font-medium text-(--color-text)">
+                    {selectedDate.toLocaleDateString("en-IN", {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs text-(--color-text-muted)">Time</p>
+                  <p className="mt-1 text-sm font-medium text-(--color-text)">
+                    {formatSlotLabel(confirmed.slot)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="border-t border-(--color-border) p-(--space-4)">
+                <p className="text-xs text-(--color-text-muted)">Booked for</p>
+                <p className="mt-1 text-sm font-medium text-(--color-text)">
+                  {confirmed.name}
+                </p>
+                <p className="mt-1 break-all text-sm text-(--color-text-secondary)">
+                  {confirmed.email}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-(--space-8) flex w-full max-w-lg flex-col gap-(--space-3) sm:flex-row">
+              <button
+                type="button"
+                onClick={handleBookAnother}
+                className="inline-flex min-h-12 flex-1 items-center justify-center rounded-lg bg-(--color-primary) px-6 py-3 text-sm font-semibold text-(--color-primary-text) transition-opacity hover:opacity-85"
+              >
+                Book another appointment
+              </button>
+
+              <Link
+                to="/dashboard"
+                className="inline-flex min-h-12 flex-1 items-center justify-center rounded-lg border border-(--color-border) px-6 py-3 text-sm font-medium text-(--color-text) transition-colors hover:border-(--color-border-hover) hover:bg-(--color-surface-hover)"
+              >
+                View dashboard
+              </Link>
+            </div>
           </div>
         </section>
       )}
